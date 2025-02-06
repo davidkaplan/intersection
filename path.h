@@ -37,7 +37,7 @@ class Path {
             }
         };
 
-    std::vector<Path> split(double t = 0.5)
+    std::vector<Path> split(double t = 0.5) const
     {
         double delta_angle = _end_angle - _start_angle;
         double delta_height = _end_height - _start_height;
