@@ -1,26 +1,21 @@
+#pragma once
 #include <Eigen/Dense> 
 #include <vector>
 #include <iostream>
+
+#include "boundingbox.h"
 
 struct Obstacle { 
     const std::vector<Eigen::Vector2d> vertices; 
     const float height; 
     //const Eigen::Vector2d bbox[2];
-    std::array<Eigen::Vector2d, 2> bbox;
-    Obstacle(const std::vector<Eigen::Vector2d>& vertices, float height) 
-        : vertices(vertices), height(height) 
+    BoundingBox2D bbox;
+    Obstacle(const std::vector<Eigen::Vector2d>& vertices, float height) : 
+        vertices(vertices), 
+        height(height) ,
+        bbox(vertices)
     {
-        bbox[0](Eigen::Vector2d(std::numeric_limits<float>::max(), std::numeric_limits<float>::max()));
-        bbox[1](Eigen::Vector2d(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()));
 
-        for (const auto& vertex : vertices) {
-            bbox[0] = bbox[0].cwiseMin(vertex).matrix();
-            if (vertex.x() < bbox[0][0]) {
-                bbox[0][0] = vertex[0];
-            }
-            bbox[0] = bbox[0].cwiseMin(vertex);
-            bbox[1] = bbox[1].cwiseMax(vertex);
-        }
     }; 
 
     friend std::ostream& operator<<(std::ostream& os, const Obstacle& obj) {

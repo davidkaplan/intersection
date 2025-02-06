@@ -62,7 +62,7 @@ TEST(BoundingBoxTest, Test_BoundingBox)
     //std::cout << "EPSILON: " << EPSILON << std::endl;
 
     Path path_2({0, 0}, 1, -45, 45, 0, 1);
-    BoundingBox2D bbox_2 = BoundingBox2D::fromPath(path_2);
+    BoundingBox2D bbox_2 = path_2.computeBBox();
     // Remember 0 is +Y, have to flip x and y arguments
     Eigen::Vector2d pMax(Eigen::Vector2d(sin(45 * M_PI / 180), 1));
     Eigen::Vector2d pMin(Eigen::Vector2d(sin(-45 * M_PI / 180), cos(-45 * M_PI / 180)));

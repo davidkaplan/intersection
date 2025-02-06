@@ -1,7 +1,10 @@
+#pragma once
 #include <Eigen/Dense> 
 #include <vector> 
 #include <iostream>
 #include <math.h>
+
+#include "boundingbox.h"
 
 class Path { 
     const Eigen::Vector2d _center; 
@@ -10,6 +13,7 @@ class Path {
     const double _end_angle;
     const double _start_height; 
     const double _end_height; 
+    const BoundingBox2D _bbox;
 
     public: 
     Path(const Eigen::Vector2d& center, double radius, double start_angle, 
@@ -18,7 +22,8 @@ class Path {
         _start_angle(start_angle), 
         _end_angle(end_angle), 
         _start_height(start_height), 
-        _end_height(end_height) 
+        _end_height(end_height),
+        _bbox(computeBBox())
         {
             // sanity checks:
             if (radius <= 0) {
@@ -131,4 +136,61 @@ class Path {
         return std::min(_start_height, _end_height);
     }
 
+    bool intersectsBBox(BoundingBox2D bbox) const {
+        return _bbox.intersects(bbox);
+    }
+
+    BoundingBox2D computeBBox() {
+        //float start_angle = path.getStartAngle();
+        //float end_angle = path.getEndAngle();
+        //Eigen::Vector2d center = path.getCenter();
+        //float radius = path.getRadius();
+        float delta = _end_angle - _start_angle;
+
+        // if the angle is greater than 360, then we have a full circle
+        if (delta >= 360) {
+            return BoundingBox2D({_center + Eigen::Vector2d(_radius, 0), _center - Eigen::Vector2d(_radius, 0), 
+                _center + Eigen::Vector2d(0, _radius), _center - Eigen::Vector2d(0, _radius)});
+        }
+
+        BoundingBox2D bbox = BoundingBox2D();
+        double tmp_start_angle = _start_angle;
+        double tmp_end_angle = _end_angle;
+
+        // first make sure start angle is positive
+        if ( _start_angle < 0 ) {
+            tmp_start_angle = _start_angle + 360*(ceil(abs(_start_angle)/360));
+            tmp_end_angle = tmp_start_angle + delta;
+        }
+        // constrain to 0-360
+        tmp_start_angle = fmod(tmp_start_angle, 360);
+        tmp_end_angle = fmod(tmp_end_angle, 360);
+        //end_angle = start_angle + delta;
+        bbox.addPoint(getPointByAngle(tmp_start_angle));
+        bbox.addPoint(getPointByAngle(tmp_end_angle));
+        //bool passes_through[] = {false, false, false, false}; // N, E, S, W
+        if ( tmp_end_angle <= tmp_start_angle  ) {
+            //passes_through[0] = true;
+            // because we've clamped start angle to 0-360, then by definition if 
+            // end angle is less than start it means we've gone through north.
+            //std::cout << "adding north" << std::endl;
+            bbox.addPoint(getPointByAngle(0));
+        }
+        if ( tmp_start_angle <= 90 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 90 ) ) {
+            //passes_through[1] = true;
+            //std::cout << "adding east" << std::endl;
+            bbox.addPoint(getPointByAngle(90));
+        }
+        if ( tmp_start_angle <= 180 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 180 ) ) {
+            //passes_through[1] = true;
+            //std::cout << "adding south" << std::endl;
+            bbox.addPoint(getPointByAngle(180));
+        }
+        if ( tmp_start_angle <= 270 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 270 ) ) {
+            //passes_through[1] = true;
+            //std::cout << "adding west" << std::endl;
+            bbox.addPoint(getPointByAngle(270));
+        }
+        return bbox;
+    }
 }; 
