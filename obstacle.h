@@ -32,10 +32,15 @@ struct Obstacle {
     // Take advantage of the convex and clockwise ordered property of these polygons.
     // This will fail if the polygon is not guanteed convex, and verts are not ordered clockwise.
     {
-        Eigen::Vector3d prev_point(vertices[0].x(), vertices[0].y(), 0);
         Eigen::Vector3d internal_point(point.x(), point.y(), 0);
-        for ( int i = 1; i < vertices.size(); i++ )
+        for ( int i = 0; i < vertices.size(); i++ )
         { 
+            int prev_index = i - 1;
+            if ( prev_index < 0 )
+            {
+                prev_index = vertices.size() - 1;
+            }
+            Eigen::Vector3d prev_point(vertices[prev_index].x(), vertices[prev_index].y(), 0);
             Eigen::Vector3d curr_point(vertices[i].x(), vertices[i].y(), 0);
             Eigen::Vector3d perim = curr_point - prev_point;
             Eigen::Vector3d radial = curr_point - internal_point;
@@ -45,7 +50,6 @@ struct Obstacle {
             {
                 return false;
             }
-            prev_point = curr_point;
         }
         return true;
     }
