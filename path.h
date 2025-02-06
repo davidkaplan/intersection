@@ -44,7 +44,7 @@ class Path {
         double split_angle= _start_angle + ( t * delta_angle);
         double split_height = _start_height + ( t * delta_height);
         Path p1 = Path(_center, _radius, _start_angle, split_angle, _start_height, split_height);
-        Path p2 = Path(_center, _radius, split_angle, _end_height, split_height, _end_height);
+        Path p2 = Path(_center, _radius, split_angle, _end_angle, split_height, _end_height);
         return std::vector<Path>{p1, p2};
     }
 
