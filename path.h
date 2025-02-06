@@ -49,6 +49,11 @@ class Path {
     }
 
     Path truncateByHeight(double max_height) const {
+        if ( std::max(_start_height, _end_height) <= max_height )
+        {
+            return *this;
+        }
+
         double new_start_angle = _start_angle;
         double new_end_angle = _end_angle;
         double new_start_height = _start_height;
