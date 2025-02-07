@@ -82,6 +82,14 @@ class Path {
         return Path(_center, _radius, new_start_angle, new_end_angle, new_start_height, new_end_height);
     }
 
+    double getAngleAtHeight(double height) const {
+        double delta_height = _end_height - _start_height;
+        double delta_angle = _end_angle - _start_angle;
+        double rate = delta_angle / delta_height; // rate of change of angle per unit height
+        double angle = _start_angle + (height - _start_height) * rate;
+        return angle;
+    }
+
     Eigen::Vector2d getPointByAngle(double angle) const {
         // flip x and y because our angle is measured clockwise from the y-axis
         double rad = angle * M_PI / 180;

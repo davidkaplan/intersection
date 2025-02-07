@@ -21,13 +21,6 @@ Intersection::Intersection(const Path& path, const Obstacle& obstacle) :
 }
 
 bool Intersection::intersects() const { 
-    // if max height of obstacle is less than min height of path, return false
-    if ( _obstacle.height < _path.getMinHeight() )
-    {
-        std::cout << "obstacle height less than start of path, returning false." << std::endl;
-        return false;
-    }
-
     // truncate path by height of obstacle
     Eigen::Vector2d orig_start_point = _path.getStartPoint();
     Eigen::Vector2d orig_end_point = _path.getEndPoint();
@@ -111,7 +104,16 @@ std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
 
 bool Intersection::intersectsAnalytic() const
 {
-    // TODO: Check top face of obstacle
+    // Check top face of obstacle
+    double angle_at_obstacle_height = _path.getAngleAtHeight(_obstacle.height);
+    if ( angle_at_obstacle_height >= _path.getStartAngle() && angle_at_obstacle_height <= _path.getEndAngle() )
+    {
+        Eigen::Vector2d point_at_top = _path.getPointByAngle(angle_at_obstacle_height);
+        if ( _obstacle.containsPoint(point_at_top) )
+        {
+            return true;
+        }
+    }
 
     double start_angle = Path::getConstrainedAngle(_path.getStartAngle());
     double end_angle = Path::getConstrainedAngle(_path.getEndAngle());
@@ -155,6 +157,12 @@ bool Intersection::intersectsAnalytic() const
 
 bool Intersection::intersects(const Path& path, const Obstacle& obstacle)
 { 
+    // if max height of obstacle is less than min height of path, return false
+    if ( obstacle.height < path.getMinHeight() )
+    {
+        std::cout << "obstacle height less than start of path, returning false." << std::endl;
+        return false;
+    }
     Intersection i(path, obstacle);
     return i.intersectsAnalytic();
 }
