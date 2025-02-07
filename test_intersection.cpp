@@ -74,6 +74,10 @@ TEST(AnalyticalIntersectionTest, Test_AnalyticalIntersection)
     EXPECT_TRUE(points.size() == 2);
     EXPECT_TRUE(points[0].isApprox(Eigen::Vector2d({1, 0})));
     EXPECT_TRUE(points[1].isApprox(Eigen::Vector2d({-1, 0})));
+
+    Path path_1({0, 0}, 15, 0, 90, 25, 15);
+    Obstacle obstacle_2(std::vector<Eigen::Vector2d>({{10, 0}, {10, 10}, {20, 10}, {20, 0}}), 20);
+    EXPECT_TRUE(Intersection::intersects(path_1, obstacle_2));
 }
 
 TEST_F(IntersectionTest, Test_Path1) {

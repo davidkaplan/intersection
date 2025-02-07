@@ -9,6 +9,7 @@ class Intersection {
 public: 
     Intersection(const Path& path, const Obstacle& obstacle);
     bool intersects() const; 
+    bool intersectsAnalytic() const;
     static std::vector<Eigen::Vector2d> intersectionLineCircle(
         const Eigen::Vector2d& line_start, 
         const Eigen::Vector2d& line_end, 

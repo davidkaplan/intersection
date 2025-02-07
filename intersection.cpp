@@ -109,8 +109,55 @@ std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
     return intersection_points;
 }
 
+bool Intersection::intersectsAnalytic() const
+{
+    // TODO: Check top face of obstacle
+
+    std::vector<double> constrained_angles = _path.getConstrainedAngles();
+    double start_angle = constrained_angles[0];
+    double end_angle = constrained_angles[1];
+
+    for ( int i = 0; i < _obstacle.vertices.size(); i++ )
+    { 
+        int prev_index = i == 0 ? _obstacle.vertices.size() - 1 : i - 1;
+        Eigen::Vector2d line_start = _obstacle.vertices[prev_index];
+        Eigen::Vector2d line_end = _obstacle.vertices[i];
+        std::vector<Eigen::Vector2d> points = intersectionLineCircle(line_start, line_end, _path.getCenter(), _path.getRadius());
+        for ( auto point : points )
+        {
+            // find angle of point relative to center of circle
+            point -= _path.getCenter();
+            // swap x and y args to atan because of our coordinate system (angle is measured clockwise from the y-axis)
+            double angle = atan2(point.x(), point.y()) * 180 / M_PI;
+            // Constrain angle to 0-360
+            angle = Path::getConstrainedAngls(angle);
+            if ( start_angle > end_angle ) // we've gone through north
+            {
+                if ( angle >= start_angle || angle <= end_angle )
+                {
+                    if ( _path.getPointByAngle3D(angle).z() <= _obstacle.height )
+                    {
+                        return true;
+                    }
+                }
+            }
+            else // else handle angls normally
+            {
+                if ( angle >= start_angle && angle <= end_angle )
+                {
+                    if ( _path.getPointByAngle3D(angle).z() <= _obstacle.height )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 bool Intersection::intersects(const Path& path, const Obstacle& obstacle)
 { 
     Intersection i(path, obstacle);
-    return i.intersects();
+    return i.intersectsAnalytic();
 }

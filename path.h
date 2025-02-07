@@ -151,6 +151,16 @@ class Path {
         return _bbox.intersects(bbox);
     }
 
+    static double getConstrainedAngls(double angle) {
+        //  make sure angle is positive
+        if ( angle < 0 ) {
+            angle += 360*(ceil(abs(angle)/360));
+        }
+        // constrain to 0-360
+        angle = fmod(angle, 360);
+        return angle;
+    }
+
     std::vector<double> getConstrainedAngles() const {
         double tmp_start_angle = _start_angle;
         double tmp_end_angle = _end_angle;
