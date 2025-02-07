@@ -125,8 +125,6 @@ bool Intersection::intersectsAnalytic() const
         std::vector<Eigen::Vector2d> points = intersectionLineCircle(line_start, line_end, _path.getCenter(), _path.getRadius());
         for ( auto point : points )
         {
-            // find angle of point relative to center of circle
-            point -= _path.getCenter();
             // swap x and y args to atan because of our coordinate system (angle is measured clockwise from the y-axis)
             double angle = atan2(point.x(), point.y()) * 180 / M_PI;
             // Constrain angle to 0-360
