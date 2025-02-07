@@ -64,6 +64,18 @@ TEST(ObstacleTest, Test_Obstacle)
     EXPECT_FALSE(obstacle_1.containsPoint(Eigen::Vector2d({-1.01, -1.01})));
 }
 
+TEST(AnalyticalIntersectionTest, Test_AnalyticalIntersection)
+{
+    Eigen::Vector2d line_start({-2, 0});
+    Eigen::Vector2d line_end({2, 0});
+    Eigen::Vector2d circle_center({0, 0});
+    double circle_radius = 1;
+    std::vector<Eigen::Vector2d> points = Intersection::intersectionLineCircle(line_start, line_end, circle_center, circle_radius);
+    EXPECT_TRUE(points.size() == 2);
+    EXPECT_TRUE(points[0].isApprox(Eigen::Vector2d({1, 0})));
+    EXPECT_TRUE(points[1].isApprox(Eigen::Vector2d({-1, 0})));
+}
+
 TEST_F(IntersectionTest, Test_Path1) {
     EXPECT_FALSE(Intersection::intersects(path_1, obstacle_1));
     EXPECT_TRUE(Intersection::intersects(path_1, obstacle_2));

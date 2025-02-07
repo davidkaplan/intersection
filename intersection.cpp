@@ -66,6 +66,49 @@ bool Intersection::intersects() const {
     return false;
 }
 
+std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
+    const Eigen::Vector2d& line_start, 
+    const Eigen::Vector2d& line_end, 
+    const Eigen::Vector2d& circle_center, 
+    double circle_radius
+) 
+{
+    // Translate the line and circle to the origin
+    Eigen::Vector2d translated_line_start = line_start - circle_center;
+    Eigen::Vector2d translated_line_end = line_end - circle_center;
+
+    // Calculate the direction vector of the line
+    Eigen::Vector2d line_direction = (translated_line_end - translated_line_start).normalized();
+
+    // Calculate the coefficients of the quadratic equation
+    double a = line_direction.squaredNorm();
+    double b = 2 * (line_direction.dot(translated_line_start));
+    double c = translated_line_start.squaredNorm() - circle_radius * circle_radius;
+
+    // Calculate the discriminant
+    double discriminant = b * b - 4 * a * c;
+
+    // If the discriminant is negative, there are no intersections
+    if (discriminant < 0) {
+        return {};
+    }
+
+    // Calculate the two solutions of the quadratic equation
+    double t1 = (-b + sqrt(discriminant)) / (2 * a);
+    double t2 = (-b - sqrt(discriminant)) / (2 * a);
+
+    // Calculate the intersection points
+    std::vector<Eigen::Vector2d> intersection_points;
+    
+    if (t1 >= 0 && t1 <= 1) {
+        intersection_points.push_back(translated_line_start + t1 * line_direction);
+    }
+    if (t2 >= 0 && t2 <= 1) {
+        intersection_points.push_back(translated_line_start + t2 * line_direction);
+    }
+    return intersection_points;
+}
+
 bool Intersection::intersects(const Path& path, const Obstacle& obstacle)
 { 
     Intersection i(path, obstacle);
