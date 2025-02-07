@@ -146,10 +146,6 @@ class Path {
     }
 
     BoundingBox2D computeBBox() {
-        //float start_angle = path.getStartAngle();
-        //float end_angle = path.getEndAngle();
-        //Eigen::Vector2d center = path.getCenter();
-        //float radius = path.getRadius();
         float delta = _end_angle - _start_angle;
 
         // if the angle is greater than 360, then we have a full circle
@@ -170,30 +166,24 @@ class Path {
         // constrain to 0-360
         tmp_start_angle = fmod(tmp_start_angle, 360);
         tmp_end_angle = fmod(tmp_end_angle, 360);
-        //end_angle = start_angle + delta;
         bbox.addPoint(getPointByAngle(tmp_start_angle));
         bbox.addPoint(getPointByAngle(tmp_end_angle));
-        //bool passes_through[] = {false, false, false, false}; // N, E, S, W
         if ( tmp_end_angle <= tmp_start_angle  ) {
-            //passes_through[0] = true;
+            // north:
             // because we've clamped start angle to 0-360, then by definition if 
             // end angle is less than start it means we've gone through north.
-            //std::cout << "adding north" << std::endl;
             bbox.addPoint(getPointByAngle(0));
         }
         if ( tmp_start_angle <= 90 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 90 ) ) {
-            //passes_through[1] = true;
-            //std::cout << "adding east" << std::endl;
+            // east
             bbox.addPoint(getPointByAngle(90));
         }
         if ( tmp_start_angle <= 180 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 180 ) ) {
-            //passes_through[1] = true;
-            //std::cout << "adding south" << std::endl;
+            // south
             bbox.addPoint(getPointByAngle(180));
         }
         if ( tmp_start_angle <= 270 && ( tmp_end_angle <= tmp_start_angle || tmp_end_angle >= 270 ) ) {
-            //passes_through[1] = true;
-            //std::cout << "adding west" << std::endl;
+            // west
             bbox.addPoint(getPointByAngle(270));
         }
         return bbox;

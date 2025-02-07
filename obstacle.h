@@ -8,14 +8,12 @@
 struct Obstacle { 
     const std::vector<Eigen::Vector2d> vertices; 
     const float height; 
-    //const Eigen::Vector2d bbox[2];
     BoundingBox2D bbox;
     Obstacle(const std::vector<Eigen::Vector2d>& vertices, float height) : 
         vertices(vertices), 
         height(height) ,
         bbox(vertices)
     {
-
     }; 
 
     friend std::ostream& operator<<(std::ostream& os, const Obstacle& obj) {

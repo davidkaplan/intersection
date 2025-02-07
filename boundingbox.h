@@ -16,8 +16,7 @@ public:
     BoundingBox2D(std::vector<Eigen::Vector2d> vertices) : BoundingBox2D() 
     {
         for (const auto& vertex : vertices) {
-            _min = _min.cwiseMin(vertex);
-            _max = _max.cwiseMax(vertex);
+            addPoint(vertex);
         }
     };
     
@@ -48,8 +47,6 @@ public:
     void addPoint(const Eigen::Vector2d& point) {
         _min = _min.cwiseMin(point);
         _max = _max.cwiseMax(point);
-        std::cout << "BBOX DEBUG: adding point: " << point.transpose() << std::endl;
-        std::cout << "BBOX DEBUG: current bbox values: " << *this << std::endl;
     }
 
     Eigen::Vector2d getMin() const {
