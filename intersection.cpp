@@ -78,7 +78,7 @@ std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
     Eigen::Vector2d translated_line_end = line_end - circle_center;
 
     // Calculate the direction vector of the line
-    Eigen::Vector2d line_direction = (translated_line_end - translated_line_start).normalized();
+    Eigen::Vector2d line_direction = (translated_line_end - translated_line_start);
 
     // Calculate the coefficients of the quadratic equation
     double a = line_direction.squaredNorm();
