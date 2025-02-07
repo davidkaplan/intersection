@@ -113,9 +113,8 @@ bool Intersection::intersectsAnalytic() const
 {
     // TODO: Check top face of obstacle
 
-    std::vector<double> constrained_angles = _path.getConstrainedAngles();
-    double start_angle = constrained_angles[0];
-    double end_angle = constrained_angles[1];
+    double start_angle = Path::getConstrainedAngle(_path.getStartAngle());
+    double end_angle = Path::getConstrainedAngle(_path.getEndAngle());
 
     for ( int i = 0; i < _obstacle.vertices.size(); i++ )
     { 
@@ -128,7 +127,7 @@ bool Intersection::intersectsAnalytic() const
             // swap x and y args to atan because of our coordinate system (angle is measured clockwise from the y-axis)
             double angle = atan2(point.x(), point.y()) * 180 / M_PI;
             // Constrain angle to 0-360
-            angle = Path::getConstrainedAngls(angle);
+            angle = Path::getConstrainedAngle(angle);
             if ( start_angle > end_angle ) // we've gone through north
             {
                 if ( angle >= start_angle || angle <= end_angle )

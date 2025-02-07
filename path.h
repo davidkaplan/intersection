@@ -151,7 +151,7 @@ class Path {
         return _bbox.intersects(bbox);
     }
 
-    static double getConstrainedAngls(double angle) {
+    static double getConstrainedAngle(double angle) {
         //  make sure angle is positive
         if ( angle < 0 ) {
             angle += 360*(ceil(abs(angle)/360));
@@ -159,22 +159,6 @@ class Path {
         // constrain to 0-360
         angle = fmod(angle, 360);
         return angle;
-    }
-
-    std::vector<double> getConstrainedAngles() const {
-        double tmp_start_angle = _start_angle;
-        double tmp_end_angle = _end_angle;
-        double delta = tmp_end_angle - tmp_start_angle;
-
-        // first make sure start angle is positive
-        if ( tmp_start_angle < 0 ) {
-            tmp_start_angle += 360*(ceil(abs(tmp_start_angle)/360));
-            tmp_end_angle = tmp_start_angle + delta;
-        }
-        // constrain to 0-360
-        tmp_start_angle = fmod(tmp_start_angle, 360);
-        tmp_end_angle = fmod(tmp_end_angle, 360);
-        return std::vector<double>{tmp_start_angle, tmp_end_angle};
     }
 
     BoundingBox2D computeBBox() {
@@ -187,9 +171,8 @@ class Path {
         }
 
         BoundingBox2D bbox = BoundingBox2D();
-        std::vector<double> constrained_angles = getConstrainedAngles();
-        double tmp_start_angle = constrained_angles[0];
-        double tmp_end_angle = constrained_angles[1];
+        double tmp_start_angle = getConstrainedAngle(_start_angle);
+        double tmp_end_angle = getConstrainedAngle(_end_angle);
         bbox.addPoint(getPointByAngle(tmp_start_angle));
         bbox.addPoint(getPointByAngle(tmp_end_angle));
         if ( tmp_end_angle <= tmp_start_angle  ) {
