@@ -4,23 +4,24 @@
 #include <vector> 
 #include <limits>
 
-class Polygon2D {
-    const std::vector<Eigen::Vector2d> _vertices; 
-    const BoundingBox2D _bbox; 
-
-    public: 
-    Polygon2D(const std::vector<Eigen::Vector2d>& vertices) : _vertices(vertices), 
-        _bbox(vertices) 
-        {}; 
-};
-
+/**
+ * Class for testing intersections between a path (arc) and an obstacle (polygon).
+ * We provide two methods: an analytic method (working), and a discreet method (in progress, not working).
+ */
 Intersection::Intersection(const Path& path, const Obstacle& obstacle) :
     _path(path),
     _obstacle(obstacle)
 {
 }
 
-bool Intersection::intersects() const { 
+/**
+ * Discreet method for testing intersections between a path and an obstacle.
+ * Didn't quite get this working, but the idea here is to use a breadth first search tree to
+ * split an arc in half and test the two children for intersection.
+ * We accelerate by first testing the bounding boxes of the arc with the bounds of the obstacle, and
+ * only then test the midpoint of the arc against the vertices of the obstacle
+ */
+bool Intersection::intersectsDiscreet() const { 
     // truncate path by height of obstacle
     Eigen::Vector2d orig_start_point = _path.getStartPoint();
     Eigen::Vector2d orig_end_point = _path.getEndPoint();
@@ -59,6 +60,10 @@ bool Intersection::intersects() const {
     return false;
 }
 
+/**
+ * Quadratic solution for finding intersections between a line segment and a circle in 2D.
+ * Will return 0, 1, or 2 intersection points in a std::vector<Eigen::Vector2d>.
+ */
 std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
     const Eigen::Vector2d& line_start, 
     const Eigen::Vector2d& line_end, 
@@ -102,9 +107,13 @@ std::vector<Eigen::Vector2d> Intersection::intersectionLineCircle(
     return intersection_points;
 }
 
+/**
+ * Analytic method for testing intersections between a path and an obstacle.
+ * This method is working. Here we use the quadratical solution to find the exact intersection points.
+ */
 bool Intersection::intersectsAnalytic() const
 {
-    // Check top face of obstacle
+    // Check top face of obstacle first, here we must test if the point is inside the polygon
     double angle_at_obstacle_height = _path.getAngleAtHeight(_obstacle.height);
     if ( angle_at_obstacle_height >= _path.getStartAngle() && angle_at_obstacle_height <= _path.getEndAngle() )
     {
@@ -115,22 +124,28 @@ bool Intersection::intersectsAnalytic() const
         }
     }
 
+    // Clamp our angles to 0-360.  This allows us to handle cases of any arbitrary rotations beyond (+/-)360 degrees.
     double start_angle = Path::getConstrainedAngle(_path.getStartAngle());
     double end_angle = Path::getConstrainedAngle(_path.getEndAngle());
 
+    // First, loop through each line segment created by two adjoining vertices of the polygon
     for ( int i = 0; i < _obstacle.vertices.size(); i++ )
     { 
         int prev_index = i == 0 ? _obstacle.vertices.size() - 1 : i - 1;
         Eigen::Vector2d line_start = _obstacle.vertices[prev_index];
         Eigen::Vector2d line_end = _obstacle.vertices[i];
+
+        // Find intersection points between the line segment and the circle
         std::vector<Eigen::Vector2d> points = intersectionLineCircle(line_start, line_end, _path.getCenter(), _path.getRadius());
+        
+        // For each solution point that exists, check that it's height is below the obstacle height.
         for ( auto point : points )
         {
             // swap x and y args to atan because of our coordinate system (angle is measured clockwise from the y-axis)
             double angle = atan2(point.x(), point.y()) * 180 / M_PI;
             // Constrain angle to 0-360
             angle = Path::getConstrainedAngle(angle);
-            if ( start_angle > end_angle ) // we've gone through north
+            if ( start_angle > end_angle ) // we've gone through north, therefore use OR logic.
             {
                 if ( angle >= start_angle || angle <= end_angle )
                 {
@@ -140,7 +155,7 @@ bool Intersection::intersectsAnalytic() const
                     }
                 }
             }
-            else // else handle angls normally
+            else // else handle angle normally, using AND logic.
             {
                 if ( angle >= start_angle && angle <= end_angle )
                 {
@@ -155,6 +170,10 @@ bool Intersection::intersectsAnalytic() const
     return false;
 }
 
+/**
+ * Static method for testing intersections between a path and an obstacle.
+ * Hardcoded to use the analytic method. Can be swapped for discreet method for further development.
+ */
 bool Intersection::intersects(const Path& path, const Obstacle& obstacle)
 { 
     // if max height of obstacle is less than min height of path, return false

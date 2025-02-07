@@ -5,6 +5,10 @@
 
 #include "boundingbox.h"
 
+/**
+ * Class for representing an obstacle (polygon) in 3D space.
+ * The obstacle is defined by a set of vertices and a height.
+ */
 struct Obstacle { 
     const std::vector<Eigen::Vector2d> vertices; 
     const float height; 
@@ -26,6 +30,10 @@ struct Obstacle {
         return os;
     }
 
+    /**
+     * Tests if a point is inside the polygon.
+     * Uses the cross product to test if the point is inside the polygon.
+     */
     bool containsPoint( Eigen::Vector2d& point ) const
     // Take advantage of the convex and clockwise ordered property of these polygons.
     // This will fail if the polygon is not guanteed convex, and verts are not ordered clockwise.

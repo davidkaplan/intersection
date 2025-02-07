@@ -2,6 +2,9 @@
 #include <Eigen/Dense> 
 #include <iostream>
 
+/**
+ * Class for representing a bounding box in 2D space.
+ */
 class BoundingBox2D {
 private:
     Eigen::Vector2d _min; 

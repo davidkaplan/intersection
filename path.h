@@ -6,6 +6,11 @@
 
 #include "boundingbox.h"
 
+/**
+ * Class for representing a path (arc) in 3D space.
+ * The path is defined by a center point, radius, start and end angles, and start and end heights.
+ * The path is represented as an arc in the XY plane, with the Z coordinate varying linearly from start_height to end_height.
+ */
 class Path { 
     const Eigen::Vector2d _center; 
     const double _radius; 
@@ -37,6 +42,10 @@ class Path {
             }
         };
 
+    /**
+     * Splits the path into two paths at a given ratio t (default split in half).
+     * Returns a vector of two paths.
+     */
     std::vector<Path> split(double t = 0.5) const
     {
         double delta_angle = _end_angle - _start_angle;
@@ -48,6 +57,10 @@ class Path {
         return std::vector<Path>{p1, p2};
     }
 
+    /**
+     * Truncates the path by a given height.
+     * Returns a new path with the start and end angles adjusted if necessary to fit within the given height.
+     */
     Path truncateByHeight(double max_height) const {
         if ( std::max(_start_height, _end_height) <= max_height )
         {
@@ -159,6 +172,9 @@ class Path {
         return _bbox.intersects(bbox);
     }
 
+    /**
+     * Returns the angle in the range [0, 360).
+     */
     static double getConstrainedAngle(double angle) {
         //  make sure angle is positive
         if ( angle < 0 ) {
@@ -169,6 +185,10 @@ class Path {
         return angle;
     }
 
+    /**
+     * Computes the bounding box of the path.
+     * The bounding box is computed by finding the points on the path at the start and end angles, and then adding the extents at 0, 90, 180, and 270 degrees if they are within the start and end angles.
+     */
     BoundingBox2D computeBBox() {
         double delta = _end_angle - _start_angle;
 

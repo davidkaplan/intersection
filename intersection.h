@@ -8,7 +8,7 @@ class Intersection {
     const int MAX_ITERATIONS = 512;
 public: 
     Intersection(const Path& path, const Obstacle& obstacle);
-    bool intersects() const; 
+    bool intersectsDiscreet() const; 
     bool intersectsAnalytic() const;
     static std::vector<Eigen::Vector2d> intersectionLineCircle(
         const Eigen::Vector2d& line_start, 
