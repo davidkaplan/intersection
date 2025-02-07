@@ -88,6 +88,12 @@ class Path {
         return _center + Eigen::Vector2d( _radius * sin(rad), _radius * cos(rad));
     }
 
+    Eigen::Vector3d getPointByAngle3D(double angle) const {
+        Eigen::Vector2d point = getPointByAngle(angle);
+        double z = _start_height + (angle - _start_angle) * (_end_height - _start_height) / (_end_angle - _start_angle);
+        return Eigen::Vector3d(point.x(), point.y(), z);
+    }
+
     Eigen::Vector2d getPointByUnitDistance(double unit_distance) const {
         double angle = _start_angle + unit_distance * (_end_angle - _start_angle);
         return getPointByAngle(angle);
